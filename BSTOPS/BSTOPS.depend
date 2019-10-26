@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1571321465 source:d:\c programs\bstops\main.c
+	<stdio.h>
+	<stdlib.h>
+
