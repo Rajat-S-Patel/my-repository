@@ -1,21 +1,22 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-struct MinHeapNode{
+struct Node{
     char data;
     unsigned freq;
-    struct MinHeapNode *left,*right;
+    struct Node *left,*right;
 };
 
-struct MinHeap{
+struct PrioQ{
     unsigned size;
     unsigned capacity;
 
-    struct MinHeapNode ** array;
+    struct Node ** array;
 };
-
-struct MinHeapNode* newNode(char data,unsigned freq){
-    struct MinHeapNode *temp = (struct MinHeapNode *)malloc(sizeof(struct MinHeapNode));
+typedef struct Node* node;
+typedef struct PrioQ* Q;
+ node newNode(char data,unsigned freq){
+    node temp = (node)malloc(sizeof(struct Node));
 
     temp->left = temp->right;
     temp->data=data;
@@ -24,78 +25,79 @@ struct MinHeapNode* newNode(char data,unsigned freq){
     return temp;
 }
 
-struct MinHeap* createMinHeap(unsigned capacity){
-    struct MinHeap *minheap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
+Q createQueue(unsigned capacity){
+    Q prioQ  = (Q)malloc(sizeof(struct PrioQ));
 
-    minheap->size=0;
-    minheap->capacity=capacity;
+    prioQ->size=0;
+    prioQ->capacity=capacity;
 
-     minheap->array = (struct MinHeapNode**)malloc(minheap->capacity * sizeof(struct MinHeapNode*)); 
+     prioQ->array = (struct Node**)malloc(prioQ->capacity * sizeof(struct Node*)); 
    
-    return minheap; 
+    return prioQ; 
 
 }
 
-void swapMinHeapNode(struct MinHeapNode **a,struct MinHeapNode **b){
-    struct MinHeapNode *temp = *a;
+void swapNode(node *a,node *b){
+    node temp = *a;
     *a=*b;
     *b=temp;
 }
-void MIN_HEAPIFY(struct MinHeap *minHeap,int index){
+void MIN_HEAPIFY(Q prioQ,int index){
     int min = index;
     int left = 2*index+1;
     int right = 2*index+2;
-      if (left < minHeap->size && minHeap->array[left]-> 
-freq < minHeap->array[min]->freq) 
+    
+      if (left < prioQ->size && prioQ->array[left]-> 
+freq < prioQ->array[min]->freq) 
         min = left; 
   
-    if (right < minHeap->size && minHeap->array[right]-> 
-freq < minHeap->array[min]->freq) 
+    if (right < prioQ->size && prioQ->array[right]-> 
+freq < prioQ->array[min]->freq) 
         min = right; 
   
     if (min != index) { 
-        swapMinHeapNode(&minHeap->array[min], 
-                        &minHeap->array[index]); 
-       MIN_HEAPIFY(minHeap, min); 
+        swapNode(&prioQ->array[min], 
+                        &prioQ->array[index]); 
+       MIN_HEAPIFY(prioQ, min); 
     } 
 }
-int isSizeOne(struct MinHeap* minHeap){
-    return minHeap->size==1;
+int isSizeOne(Q prioQ){
+    return prioQ->size==1;
 }
-struct MinHeapNode* extractMin(struct MinHeap* minHeap){
-    struct MinHeapNode* temp=minHeap->array[0];
-    minHeap->array[0]=minHeap->array[minHeap->size-1];
-    --minHeap->size;
-    MIN_HEAPIFY(minHeap,0);
+node dequeue(Q prioQ){
+    node temp=prioQ->array[0];
+    prioQ->array[0]=prioQ->array[prioQ->size-1];
+    --prioQ->size;
+    MIN_HEAPIFY(prioQ,0);
 
     return temp;
 }
 
-void insertMinHeap(struct MinHeap* minHeap, 
-                   struct MinHeapNode* minHeapNode) 
+void enqueue(Q prioQ, 
+                   node element) 
   
 { 
   
-    ++minHeap->size; 
-    int i = minHeap->size - 1; 
+    ++prioQ->size; 
+    int i = prioQ->size - 1; 
   
-    while (i && minHeapNode->freq < minHeap->array[(i - 1) / 2]->freq) { 
+    while (i && element->freq < prioQ->array[(i - 1) / 2]->freq) { 
   
-        minHeap->array[i] = minHeap->array[(i - 1) / 2]; 
+        prioQ->array[i] = prioQ->array[(i - 1) / 2]; 
         i = (i - 1) / 2; 
     } 
   
-    minHeap->array[i] = minHeapNode; 
+    prioQ->array[i] = element; 
 } 
-void buildMinHeap(struct MinHeap* minHeap) 
+void buildMinHeap(Q prioQ) 
   
 { 
   
-    int n = minHeap->size - 1; 
+    int n = prioQ->size - 1; 
     int i; 
   
-    for (i = (n - 1) / 2; i >= 0; --i) 
-        MIN_HEAPIFY(minHeap, i); 
+    for (i = (n) / 2; i >= 0; --i) 
+        MIN_HEAPIFY(prioQ, i); 
 } 
  void printArr(int arr[], int n) 
 { 
@@ -105,45 +107,46 @@ void buildMinHeap(struct MinHeap* minHeap)
   
     printf("\n"); 
 }
-int isLeaf(struct MinHeapNode* root) 
+int isLeaf(node root) 
   
 { 
   
     return !(root->left) && !(root->right); 
 }
-struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size){
+Q createAndBuildMinHeap(char data[], int freq[], int size){
   
-    struct MinHeap* minHeap = createMinHeap(size); 
+    Q prioQ = createQueue(size); 
   int i;
     for ( i = 0; i < size; ++i) 
-        minHeap->array[i] = newNode(data[i], freq[i]); 
+        prioQ->array[i] = newNode(data[i], freq[i]); 
   
-    minHeap->size = size; 
-    buildMinHeap(minHeap); 
+   prioQ->size = size; 
+    buildMinHeap(prioQ); 
   
-    return minHeap; 
+    return prioQ; 
 }
-struct MinHeapNode* buildHuffmanTree(char data[],int freq[],int size){
-    struct MinHeapNode *left,*right,*top;
+node buildHuffmanTree(char data[],int freq[],int size){
+   node left,right,top;
 
-    struct MinHeap* minHeap = createAndBuildMinHeap(data,freq,size);
+    Q prioQ = createAndBuildMinHeap(data,freq,size);
 
-    while(!isSizeOne(minHeap)){
-        left = extractMin(minHeap);
-        right = extractMin(minHeap);
-
+    while(!isSizeOne(prioQ)){
+        left = dequeue(prioQ);
+        right = dequeue(prioQ);
+       // printf("left : %d\n",left->freq);
+       // printf("right : %d\n",right->freq);
         top = newNode('#',left->freq+right->freq);
 
         top->left=left;
         top->right=right;
 
-        insertMinHeap(minHeap,top);
+        enqueue(prioQ,top);
 
         
     }
-    return extractMin(minHeap);
+    return dequeue(prioQ);
 }
-void printCodes(struct MinHeapNode* root,int arr[],int top){
+void printCodes(node root,int arr[],int top){
     if(root->left){
         arr[top]=0;
         printCodes(root->left,arr,top+1);
@@ -159,7 +162,7 @@ void printCodes(struct MinHeapNode* root,int arr[],int top){
     }
 }
 void HuffmanCodes(char data[],int freq[],int size){
-    struct MinHeapNode* root = buildHuffmanTree(data,freq,size);
+    node root = buildHuffmanTree(data,freq,size);
     int arr[10],top=0;
     printCodes(root,arr,top);
 }   
