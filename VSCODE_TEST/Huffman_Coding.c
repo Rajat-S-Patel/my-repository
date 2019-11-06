@@ -6,7 +6,7 @@ struct Node{
     unsigned freq;
     struct Node *left,*right;
 };
-
+FILE *file;
 struct PrioQ{
     unsigned size;
     unsigned capacity;
@@ -73,9 +73,7 @@ node dequeue(Q prioQ){
     return temp;
 }
 
-void enqueue(Q prioQ, 
-                   node element) 
-  
+void enqueue(Q prioQ,node element) 
 { 
   
     ++prioQ->size; 
@@ -102,15 +100,17 @@ void buildMinHeap(Q prioQ)
  void printArr(int arr[], int n) 
 { 
     int i; 
-    for (i = 0; i < n; ++i) 
-        printf("%d", arr[i]); 
-  
-    printf("\n"); 
+    for (i = 0; i < n; ++i){
+        printf("%d", arr[i]);
+        fprintf(file,"%d",arr[i]);
+    } 
+        
+       
+    printf("\n");
+    fprintf(file,"%c%c",':','\n'); 
 }
-int isLeaf(node root) 
-  
+int isLeaf(node root)  
 { 
-  
     return !(root->left) && !(root->right); 
 }
 Q createAndBuildMinHeap(char data[], int freq[], int size){
@@ -158,20 +158,50 @@ void printCodes(node root,int arr[],int top){
 
     if(isLeaf(root)){
         printf("%c : ",root->data);
+        fprintf(file,"%c : ",root->data);
         printArr(arr,top);
     }
 }
+
 void HuffmanCodes(char data[],int freq[],int size){
     node root = buildHuffmanTree(data,freq,size);
     int arr[10],top=0;
+    file = fopen("F:/OCTAVE_PROJECTS/encoded.txt","w");
+    
     printCodes(root,arr,top);
+}
+void findIndex(char c,int *freq)
+{   freq[c-97]++;
+   // printf("%d data\n",freq[c-97]);
+   
 }   
 int main(){
-    char arr[] = { 'a', 'b', 'c', 'd', 'e', 'f' }; 
-    int freq[] = { 5, 9, 12, 13, 16, 45 }; 
-  
+  //  char arr[] = { 'a', 'b', 'c', 'd', 'e', 'f' }; 
+    //int freq[] = { 5, 9, 12, 13, 16, 45 }; 
+    FILE *fp = fopen("F:/OCTAVE_PROJECTS/temp.txt","r");
+
+    char arr[6];
+    int i=0;
+    int freq[6]; 
+    for(i=0;i<6;i++){
+        freq[i]=0;
+    }
+    i=0;
+    char c;
+    while((c=fgetc(fp))!=EOF){
+        //printf("character : %c\n",c);
+        arr[c-97]=c;
+        findIndex(c,freq);
+        i++;
+    } 
+    fclose(fp);
+    for(i=0;i<6;i++){
+        printf("",arr[i],freq[i]);
+    }
+    
     int size = sizeof(arr) / sizeof(arr[0]); 
   
-    HuffmanCodes(arr, freq, size); 
+    HuffmanCodes(arr, freq, size);
+    fclose(file); 
     return 0;
 }
