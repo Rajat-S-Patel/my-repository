@@ -97,7 +97,7 @@ void buildMinHeap(Q prioQ)
     for (i = (n) / 2; i >= 0; --i) 
         MIN_HEAPIFY(prioQ, i); 
 } 
- void printArr(int arr[], int n) 
+ void printArr(int *arr, int n) 
 { 
     int i; 
     for (i = 0; i < n; ++i){
@@ -107,7 +107,7 @@ void buildMinHeap(Q prioQ)
         
        
     printf("\n");
-    fprintf(file,"%c%c",':','\n'); 
+    fprintf(file,"%c%c",'`','\n'); 
 }
 int isLeaf(node root)  
 { 
@@ -146,7 +146,7 @@ node buildHuffmanTree(char data[],int freq[],int size){
     }
     return dequeue(prioQ);
 }
-void printCodes(node root,int arr[],int top){
+void printCodes(node root,int *arr,int top){
     if(root->left){
         arr[top]=0;
         printCodes(root->left,arr,top+1);
@@ -158,20 +158,64 @@ void printCodes(node root,int arr[],int top){
 
     if(isLeaf(root)){
         printf("%c : ",root->data);
-        fprintf(file,"%c : ",root->data);
+        if(root->data==' ')
+        fprintf(file,"space ` ");
+        else if(root->data=='\n'||root->data=='\r')
+        fprintf(file,"enter ` ");
+        else if(root->data=='\t')
+        fprintf(file,"h_tab ` ");
+        else if(root->data=='\v')
+        fprintf(file,"v_tab ` ");
+        else
+        fprintf(file,"%c ` ",root->data);
+        
         printArr(arr,top);
     }
 }
-
+void modifyData(char *data,char* data_1,int *freq,int *freq_1){
+    int i=0,j=0;
+    
+    for(i=0;i<256;i++){
+        if(freq[i]!=0){
+            data_1[j]=data[i];
+            freq_1[j]=freq[i];
+            j++;
+        }
+    }
+}
+int getCount(int *freq){
+    int i=0;
+    int count=0;
+    for(i=0;i<256;i++){
+        if(freq[i]!=0){
+            count++;
+        }
+    }
+    return count;
+}
 void HuffmanCodes(char data[],int freq[],int size){
-    node root = buildHuffmanTree(data,freq,size);
-    int arr[10],top=0;
+    int length=getCount(freq);
+    int i=0;
+   /* for(i=0;i<256;i++){
+        printf("freq : %d\n",freq[i]);
+    }*/
+    printf("length : %d\n",length);
+    char data_1[length];
+    int freq_1[length];
+    modifyData(data,data_1,freq,freq_1);
+    for(i=0;i<length;i++){
+        printf("freq_1 : %d\n",freq_1[i]); 
+    }
+    node root = buildHuffmanTree(data_1,freq_1,length);
+    int arr[256],top=0;
     file = fopen("F:/OCTAVE_PROJECTS/encoded.txt","w");
     
     printCodes(root,arr,top);
 }
+
+
 void findIndex(char c,int *freq)
-{   freq[c-97]++;
+{   freq[(int)c]++;
    // printf("%d data\n",freq[c-97]);
    
 }   
@@ -180,22 +224,24 @@ int main(){
     //int freq[] = { 5, 9, 12, 13, 16, 45 }; 
     FILE *fp = fopen("F:/OCTAVE_PROJECTS/temp.txt","r");
 
-    char arr[6];
+    //char arr[6];
+    char arr[256];
+    int freq[256];
     int i=0;
-    int freq[6]; 
-    for(i=0;i<6;i++){
+    //int freq[6]; 
+    for(i=0;i<256;i++){
         freq[i]=0;
     }
     i=0;
     char c;
     while((c=fgetc(fp))!=EOF){
         //printf("character : %c\n",c);
-        arr[c-97]=c;
+        arr[(int)c]=c;
         findIndex(c,freq);
         i++;
     } 
     fclose(fp);
-    for(i=0;i<6;i++){
+    for(i=0;i<256;i++){
         printf("",arr[i],freq[i]);
     }
     
